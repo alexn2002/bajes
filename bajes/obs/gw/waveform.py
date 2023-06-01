@@ -255,7 +255,12 @@ class Waveform(object):
             lal_approx      = self.approx.split('-')[1]
             self.domain     = 'time'
             self.wave_func  = lal_wrapper(lal_approx, self.domain)
-
+            
+        elif self.approx == 'QUINCY':
+            from .approx.Quincy import myQuadrupoleSignal
+            self.wave_func = myQuadrupoleSignal
+            self.domain     = 'time'
+            
         else:
             from . import __known_approxs__
             raise AttributeError("Unable to read approximant string. Please use a valid value (see bajes.__known_approxs__):\n{}.\nIf you are using a LAL approximant, it is possible to know the full list at https://lscsoft.docs.ligo.org/lalsuite/".format(__known_approxs__))
@@ -371,8 +376,8 @@ class Waveform(object):
         # compute hplus and hcross according with approx
         hp , hc = self.wave_func(self.freqs, params)
 
-        # if hp,hc is None, return Nones
-        if not any(hp):
+        #if hp,hc is None, return Nones
+        if not any(hc) and not any(hp):
             return PolarizationTuple()
 
         if self.domain == 'time':
