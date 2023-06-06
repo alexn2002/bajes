@@ -56,7 +56,7 @@ def myQuadrupoleSignal(freq,params):
     t = t_gps + time_shift - t1
     #shorten t array
     
-    f = np.zeros(shape=srate*seglen)
+    f = np.zeros(shape=int(srate*seglen))
     
     f[0:int(adseglen*srate)] = (256./5.)**(-3./8.)*1./(np.pi)*(G*chirpmass/(c**3.))**(-5./8.)*t**(-3./8.)
     #f = 20HZ at t1 = t_gps
