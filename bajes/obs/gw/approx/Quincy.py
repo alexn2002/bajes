@@ -49,27 +49,25 @@ def myQuadrupoleSignal(freq,params):
     #number of time steps = number of output data length
     
     t_start = t_gps - seglen/2.
-    t_end   = t_gps + time_shift - 1./srate
-    adseglen = t_end - t_start
-    t1 = np.linspace(t_start, t_end, int(adseglen*srate))
+    t_end = t_gps + seglen/2.
+    t_c   = t_gps + time_shift - 1./srate
+    adseglen = t_c - t_start
+    t1 = np.linspace(t_start, t_end, int(seglen*srate))
     #t_gps + time_shift = t_coalescence
     t = t_gps + time_shift - t1
     #shorten t array
     
     f = np.zeros(shape=int(srate*seglen))
-    
-    f[0:int(adseglen*srate)] = (256./5.)**(-3./8.)*1./(np.pi)*(G*chirpmass/(c**3.))**(-5./8.)*t**(-3./8.)
-    #f = 20HZ at t1 = t_gps
-    
+    phi = np.zeros(shape=int(srate*seglen))
+
+    f[0:int(adseglen*srate)] = (256./5.)**(-3./8.)*1./(np.pi)*(G*chirpmass/(c**3.))**(-5./8.)*t[0:int(adseglen*srate)]**(-3./8.)
+    #frequency
+    phi[0:int(adseglen*srate)] = 2*np.pi*8./5*f[0:int(adseglen*srate)]*t[0:int(adseglen*srate)]
+    #phase (2pi * integral of frequency)
     hp = np.zeros(shape=np.size(f))
     hc = np.zeros(shape=np.size(f))
     
-    hp[0:int(adseglen*srate)] = 4/d*(G*chirpmass/(c**2))**(5/3)*(np.pi*f[0:int(adseglen*srate)]/c)**(2/3)*(np.cos(2*np.pi*f[0:int(adseglen*srate)]*t[:] + phiRef))*(np.cos(jota)**2+1.)/2
-    hc[0:int(adseglen*srate)] = 4/d*(G*chirpmass/(c**2))**(5/3)*(np.pi*f[0:int(adseglen*srate)]/c)**(2/3)*(np.sin(2*np.pi*f[0:int(adseglen*srate)]*t[:] + phiRef))*np.cos(jota)
+    hp[0:int(adseglen*srate)] = 4/d*(G*chirpmass/(c**2))**(5./3)*(np.pi*f[0:int(adseglen*srate)]/c)**(2./3)*(np.cos(phi[0:int(adseglen*srate)] + phiRef))*(np.cos(jota)**2+1.)/2
+    hc[0:int(adseglen*srate)] = 4/d*(G*chirpmass/(c**2))**(5./3)*(np.pi*f[0:int(adseglen*srate)]/c)**(2./3)*(np.sin(phi[0:int(adseglen*srate)] + phiRef))*np.cos(jota)
     
-    
-    #strain for both TT-Polarizations 
-    #h computed in SI-Units
-    #I lost a factor ~3 somehow...
-    #f(t) have to be corrected!!! (will do on 30.05)
     return hp, hc
